@@ -21,7 +21,7 @@ const Register = (props) => {
             </div>
           </fieldset>
           <div className="lh-copy mt3">
-            <a href="#0" className="f6 link dim black db">Register</a>
+            <a href="/app" className="f6 link dim black db">Register</a>
           </div>
         </div>
       </main>

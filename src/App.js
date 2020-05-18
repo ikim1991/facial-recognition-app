@@ -1,4 +1,6 @@
 import React from 'react';
+import { Fragment } from 'react';
+import { Route } from 'react-router-dom';
 import './App.css';
 import 'tachyons'
 import Navigation from './Components/Navigation';
@@ -9,6 +11,7 @@ import FaceRecognition from './Components/FaceRecognition';
 import SignIn from './Components/SignIn'
 import Register from './Components/Register'
 const Clarifai = require('clarifai');
+
 
 const app = new Clarifai.App({
  apiKey: process.env.REACT_APP_CLARIFAI_API_KEY
@@ -63,13 +66,19 @@ class App extends React.Component{
   render(){
     return(
       <div className="App">
-        <SignIn />
-        <Register />
         <Navigation />
         <Logo />
-        <ImageCounter />
-        <ImageLinkForm inputChange={this.onInputChange} buttonSubmit={this.onButtonSubmit}/>
-        <FaceRecognition url={this.state.imageURL} box={this.state.box}/>
+        <Route exact path="/" component={SignIn}/>
+        <Route path ="/register" component={Register}/>
+        <Route path="/app" render={() => {
+          return (
+            <Fragment>
+              <ImageCounter />
+              <ImageLinkForm inputChange={this.onInputChange} buttonSubmit={this.onButtonSubmit}/>
+              <FaceRecognition url={this.state.imageURL} box={this.state.box}/>
+            </Fragment>
+          )
+        }}/>
       </div>
     )
   }

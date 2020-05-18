@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const SignIn = (props) => {
   return (
@@ -17,10 +18,13 @@ const SignIn = (props) => {
             </div>
           </fieldset>
           <div className="">
-            <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" value="Sign in"/>
+            <Link to="/app">
+              <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" value="Sign in"/>
+            </Link>
+
           </div>
           <div className="lh-copy mt3">
-            <a href="#0" className="f6 link dim black db">Register</a>
+            <a href="/register" className="f6 link dim black db">Register</a>
           </div>
         </div>
       </main>
