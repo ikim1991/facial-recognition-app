@@ -1,10 +1,10 @@
 import React from 'react';
 
-const ImageCounter = () => {
+const ImageCounter = (props) => {
   return (
     <div className="image-counter">
       <div className="white f3 center">
-        {`Current Number of Images Detected: `}
+        {`Welcome ${props.user.name}! Your Current Number of Images Detected: ${props.user.entries}`}
       </div>
     </div>
   )

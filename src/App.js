@@ -10,6 +10,7 @@ import ImageLinkForm from './Components/ImageLinkForm';
 import FaceRecognition from './Components/FaceRecognition';
 import SignIn from './Components/SignIn'
 import Register from './Components/Register'
+import { Switch } from 'react-router-dom'
 const Clarifai = require('clarifai');
 
 
@@ -17,13 +18,16 @@ const app = new Clarifai.App({
  apiKey: process.env.REACT_APP_CLARIFAI_API_KEY
 });
 
+
 class App extends React.Component{
   constructor(){
     super()
     this.state = {
+      loggedIn: false,
       input: '',
       imageURL: "",
-      box: []
+      box: [],
+      user: {}
     }
   }
 
@@ -58,27 +62,60 @@ class App extends React.Component{
   onButtonSubmit = () => {
     this.setState({ imageURL: this.state.input})
     app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
-    .then(response => this.calculateFaceLocation(response))
+    .then(response => {
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/image`, {
+        method: 'put',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: this.state.user.id})
+      })
+        .then(res => res.json())
+        .then(user => this.setState({ user }))
+      return this.calculateFaceLocation(response)
+    })
     .then(box => this.displayFaceBox(box))
     .catch(err => console.log(err))
+  }
+
+  loadUser = (user) => {
+    this.setState({ user })
+  }
+
+  login = (error) => {
+    if(!error){
+      this.setState({loggedIn: true})
+    }
+  }
+
+  logout = () => {
+    this.setState({logginIn: false})
   }
 
   render(){
     return(
       <div className="App">
-        <Navigation />
+        <Navigation logout={this.logout}/>
         <Logo />
-        <Route exact path="/" component={SignIn}/>
-        <Route path ="/register" component={Register}/>
-        <Route path="/app" render={() => {
-          return (
-            <Fragment>
-              <ImageCounter />
-              <ImageLinkForm inputChange={this.onInputChange} buttonSubmit={this.onButtonSubmit}/>
-              <FaceRecognition url={this.state.imageURL} box={this.state.box}/>
-            </Fragment>
-          )
-        }}/>
+        <Switch>
+          <Route exact path="/" render={(props) => {
+            return(
+              <SignIn {...props} loggedIn={this.state.loggedIn} loadUser={this.loadUser} login={this.login}/>
+            )
+          }}/>
+          <Route exact path="/app" render={() => {
+            return (
+                <Fragment>
+                  <ImageCounter user={this.state.user}/>
+                  <ImageLinkForm inputChange={this.onInputChange} buttonSubmit={this.onButtonSubmit}/>
+                  <FaceRecognition url={this.state.imageURL} box={this.state.box}/>
+                </Fragment>
+              )
+          }}/>
+          <Route exact path="/register" render={(props) => {
+            return(
+              <Register {...props} loggedIn={this.state.loggedIn} loadUser={this.loadUser} login={this.login}/>
+            )
+          }}/>
+        </Switch>
       </div>
     )
   }
