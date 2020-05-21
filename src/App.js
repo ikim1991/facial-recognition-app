@@ -1,6 +1,6 @@
 import React from 'react';
 import { Fragment } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 import './App.css';
 import 'tachyons'
 import Navigation from './Components/Navigation';
@@ -87,7 +87,12 @@ class App extends React.Component{
   }
 
   logout = () => {
-    this.setState({logginIn: false})
+    this.setState({
+      loggedIn: false,
+      user: {},
+      box: [],
+      imageURL: "",
+    })
   }
 
   render(){
@@ -101,15 +106,21 @@ class App extends React.Component{
               <SignIn {...props} loggedIn={this.state.loggedIn} loadUser={this.loadUser} login={this.login}/>
             )
           }}/>
-          <Route exact path="/app" render={() => {
-            return (
-                <Fragment>
-                  <ImageCounter user={this.state.user}/>
-                  <ImageLinkForm inputChange={this.onInputChange} buttonSubmit={this.onButtonSubmit}/>
-                  <FaceRecognition url={this.state.imageURL} box={this.state.box}/>
-                </Fragment>
-              )
-          }}/>
+          {
+            (this.state.loggedIn) ? (
+              <Route exact path="/app" render={() => {
+                return (
+                    <Fragment>
+                      <ImageCounter user={this.state.user}/>
+                      <ImageLinkForm inputChange={this.onInputChange} buttonSubmit={this.onButtonSubmit}/>
+                      <FaceRecognition url={this.state.imageURL} box={this.state.box}/>
+                    </Fragment>
+                  )
+              }}/>
+            ) : (
+              <Redirect to="/"/>
+            )
+          }
           <Route exact path="/register" render={(props) => {
             return(
               <Register {...props} loggedIn={this.state.loggedIn} loadUser={this.loadUser} login={this.login}/>
