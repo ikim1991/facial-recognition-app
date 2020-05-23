@@ -36,10 +36,10 @@ class Register extends React.Component{
       .then(res => res.json())
       .then(data => {
         if(!data.error){
-          this.props.login(data.error)
+          this.props.login(data.error, data.token)
           this.props.history.push("/app")
         }
-        this.props.loadUser(data)
+        this.props.loadUser(data.user)
       })
     }
   }

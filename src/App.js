@@ -23,7 +23,7 @@ class App extends React.Component{
   constructor(){
     super()
     this.state = {
-      loggedIn: false,
+      loggedIn: window.localStorage.getItem("token-persists"),
       input: '',
       imageURL: "",
       box: [],
@@ -77,10 +77,17 @@ class App extends React.Component{
   }
 
   loadUser = (user) => {
-    this.setState({ user })
+    if(user){
+      this.setState({ user })
+    }
   }
 
-  login = (error) => {
+  login = (error, token) => {
+    if(token){
+      window.localStorage.setItem("token", token)
+      window.localStorage.setItem("token-persists", true)
+    }
+
     if(!error){
       this.setState({loggedIn: true})
     }
@@ -92,7 +99,27 @@ class App extends React.Component{
       user: {},
       box: [],
       imageURL: "",
+    }, () => {
+      window.localStorage.clear()
     })
+  }
+
+  componentDidMount(){
+    if(true){
+      fetch(`${process.env.REACT_APP_BACKEND_URL}/user`, {
+        method: 'post',
+        headers:{
+          'Content-type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.token
+        },
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(!data.error){
+          this.loadUser(data)
+        }
+      })
+    }
   }
 
   render(){
@@ -111,7 +138,7 @@ class App extends React.Component{
               <Route exact path="/app" render={() => {
                 return (
                     <Fragment>
-                      <ImageCounter user={this.state.user}/>
+                      <ImageCounter user={this.state.user} loadUser={this.loadUser}/>
                       <ImageLinkForm inputChange={this.onInputChange} buttonSubmit={this.onButtonSubmit}/>
                       <FaceRecognition url={this.state.imageURL} box={this.state.box}/>
                     </Fragment>

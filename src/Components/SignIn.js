@@ -19,12 +19,6 @@ class SignIn extends React.Component {
   }
 
   onSubmitSignin = () => {
-    // fetch('http://localhost:3000/signin', {
-    //   method: 'post',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({ email: this.state.email, password: this.state.password })
-    // })
-    //   .then(res => console.log(res))
 
     fetch(`${process.env.REACT_APP_BACKEND_URL}/signin`, {
       method: 'post',
@@ -34,10 +28,10 @@ class SignIn extends React.Component {
       .then(res => res.json())
       .then(data => {
         if(!data.error){
-          this.props.login(data.error)
+          this.props.login(data.error, data.token)
           this.props.history.push("/app")
         }
-        this.props.loadUser(data)
+        this.props.loadUser(data.user)
       })
   }
 
