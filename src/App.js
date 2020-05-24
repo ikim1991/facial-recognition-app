@@ -65,11 +65,12 @@ class App extends React.Component{
     .then(response => {
       fetch(`${process.env.REACT_APP_BACKEND_URL}/image`, {
         method: 'put',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: this.state.user.id})
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.token}
       })
         .then(res => res.json())
-        .then(user => this.setState({ user }))
+        .then(data => {
+          this.setState({user: data})
+        })
       return this.calculateFaceLocation(response)
     })
     .then(box => this.displayFaceBox(box))
@@ -94,24 +95,41 @@ class App extends React.Component{
   }
 
   logout = () => {
-    this.setState({
-      loggedIn: false,
-      user: {},
-      box: [],
-      imageURL: "",
-    }, () => {
-      window.localStorage.clear()
+    fetch(`${process.env.REACT_APP_BACKEND_URL}/logout`, {
+      method: 'post',
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.token
+      }
     })
+    .then(res => res.json())
+    .then(data => {
+      this.setState({
+        user: data,
+        box: [],
+        imageURL: "",
+        loggedIn: false
+      }, () => {
+        window.localStorage.clear()
+      })
+    })
+    // this.setState({
+    //   loggedIn: false,
+    //   user: {},
+    //   box: [],
+    //   imageURL: "",
+    // }, () => {
+    //   window.localStorage.clear()
+    // })
   }
 
   componentDidMount(){
-    if(true){
+    if(this.state.loggedIn && window.location.href.includes("/app")){
       fetch(`${process.env.REACT_APP_BACKEND_URL}/user`, {
-        method: 'post',
+        method: 'get',
         headers:{
           'Content-type': 'application/json',
           'Authorization': 'Bearer ' + localStorage.token
-        },
+        }
       })
       .then(res => res.json())
       .then(data => {
